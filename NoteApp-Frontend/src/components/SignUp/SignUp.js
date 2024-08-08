@@ -7,14 +7,28 @@ const SignUp = () => {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [error,setError] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
 
-    const baseUrl = "https://notesapp-backend-3r3l.onrender.com";
+    const baseUrl = "http://localhost:5000";
 
     const handleSignUp = (e) => {
         e.preventDefault();
         const user = { name, email, password };
+
+        if(!user || !email || !password){
+            setError("some fields are missing");
+            return;
+        }
+        if(password.length<6){
+            setError("password length must be greater than 5");
+            return;
+        }
+
+        setLoading(true);
+        setError("");
 
         axios({
             method: "POST",
@@ -30,11 +44,13 @@ const SignUp = () => {
                 navigate("/dashboard")
             })
             .catch((error) => {
-                alert(error);
+                setError("signup failed try again");
                 setName("");
                 setEmail("");
                 setPassword("");
-            });
+            }).finally(()=>{
+                setLoading(false);
+            })
     };
 
     const handleLogin = (e) => {
@@ -44,6 +60,8 @@ const SignUp = () => {
     return (
         <div className="Signup">
             <h1>SignUp</h1>
+            {loading && <p>Loading...</p>}
+            {error && <p className="error">{error}</p>}
             <form className="SignUpForm">
                 <input
                     type="text"
